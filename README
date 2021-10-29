@@ -1,0 +1,3 @@
+coarse dust modification to CESM code
+- Jun Meng (jun.meng@ucla.edu)
+- include these codes in your run directory before build the model
