@@ -142,8 +142,7 @@ contains
     real(r8) :: fact_BFT(ndst) =                  &     ! [fraction unitless] !JM Factors from Brittle Fragmentation Theory 
          !  (/ 0.0064_r8, 0.0555_r8, 0.1117_r8, 0.2476_r8, 0.1736_r8, 0.2090_r8, 0.1503_r8, 0.0458_r8 /)  !P40 from Yue's MLE
          !   (/ 0.004789_r8, 0.039217_r8, 0.123221_r8, 0.288279_r8, 0.183808_r8, 0.177866_r8, 0.117797_r8, 0.065022_r8 /)  !complex BFT factors 
-         !   (/ 0.004442_r8, 0.0308085_r8,0.0829659_r8,0.184324_r8,0.1352501_r8,0.17431356_r8,0.18561530_r8,0.2022801_r8 /) !complex BFT with Danny parameters       
-         (/ 0.0077_r8, 0.0635_r8, 0.2015_r8, 0.4556_r8, 0.2047_r8, 0.0651_r8, 0.0019_r8, 3.2799e-7_r8 /) !Original BFT in kok 11 but with 8 bins
+            (/ 0.004442_r8, 0.0308085_r8,0.0829659_r8,0.184324_r8,0.1352501_r8,0.17431356_r8,0.18561530_r8,0.2022801_r8 /) !complex BFT with Danny parameters 
       !  (/ 0.008918_r8, 0.072296_r8, 0.142149_r8, 0.298359_r8, 0.218148_r8, 0.260130_r8, 0.186928_r8, 0.057237_r8/)!JUN calculated from yue's MLE fit line 
     !real(r8), parameter :: fact_BFT(n)       !JM Factors from Brittle Fragmentation Theory 
 !    real(r8), parameter :: cst_slt = 2.61_r8           ! [frc] Saltation constant !-variable no longer needed, -jfk
@@ -557,7 +556,7 @@ contains
                   dmt_vwr(m)   ![frc] Slip correction factor SeP97 p. 464
              vlc_grv(p,m) = (1.0_r8/18.0_r8) * dmt_vwr(m) * dmt_vwr(m) * dns_aer * &
                   grav * slp_crc(p,m) / vsc_dyn_atm(p)   ![m s-1] Stokes' settling velocity SeP97 p. 466
-             vlc_grv(p,m) = vlc_grv(p,m) * stk_crc(m) * 0.87_r8 !JM 13% reduction    ![m s-1] Correction to Stokes settling velocity
+             vlc_grv(p,m) = vlc_grv(p,m) * stk_crc(m) * 0.87_r8 !JM 13% off   ![m s-1] Correction to Stokes settling velocity
           end do
        end if
     end do

@@ -556,7 +556,7 @@ contains
                   dmt_vwr(m)   ![frc] Slip correction factor SeP97 p. 464
              vlc_grv(p,m) = (1.0_r8/18.0_r8) * dmt_vwr(m) * dmt_vwr(m) * dns_aer * &
                   grav * slp_crc(p,m) / vsc_dyn_atm(p)   ![m s-1] Stokes' settling velocity SeP97 p. 466
-             vlc_grv(p,m) = vlc_grv(p,m) * stk_crc(m)    ![m s-1] Correction to Stokes settling velocity
+             vlc_grv(p,m) = vlc_grv(p,m) * stk_crc(m) * 0.87_r8 !JM 13% reduction   ![m s-1] Correction to Stokes settling velocity
           end do
        end if
     end do

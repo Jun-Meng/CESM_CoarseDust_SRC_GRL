@@ -1366,7 +1366,7 @@ subroutine dust_emis_intr(state, cam_in)
                   dmt_vwr(m)   ![frc] Slip correction factor SeP97 p. 464
              vlc_grv(i,k,m) = (1.0_r8/18.0_r8) * dmt_vwr(m) * dmt_vwr(m) * dns_aer * &
                   gravit * slp_crc(i,k,m) / vsc_dyn_atm(i,k) ![m s-1] Stokes' settling velocity SeP97 p. 466
-             vlc_grv(i,k,m) = vlc_grv(i,k,m) * stk_crc(m)         ![m s-1] Correction to Stokes settling velocity
+             vlc_grv(i,k,m) = vlc_grv(i,k,m) * stk_crc(m) * 0.87 !JM 13% reduction        ![m s-1] Correction to Stokes settling velocity
              vlc_dry(i,k,m)=vlc_grv(i,k,m)
           end do
        enddo

@@ -888,7 +888,9 @@ subroutine dust_emis_intr(state, cam_in)
 #if (defined MODAL_AERO)
     do i = 1, ncol
        !soil_erod_tmp(i) = soil_erodibility( i,lchnk ) !-jfk
-       soil_erod_tmp(i) = 1; !turning off the source function -jfk, 8/27/18
+       !soil_erod_tmp(i) = 1; !turning off the source function -jfk, 8/27/18
+       !JM apply freshly uplifted dust
+       soil_erod_tmp(i) = soil_erodibility( i,lchnk )
        if(soil_erod_tmp(i) .lt. 0.1_r8) soil_erod_tmp(i)=0._r8
     end do
     cflx(:ncol,dust_idx1())=cflx(:ncol,dust_idx1())
@@ -902,8 +904,8 @@ subroutine dust_emis_intr(state, cam_in)
 #else
     do i = 1, ncol
 
-       !soil_erod_tmp(i) = soil_erodibility( i,lchnk ) !-jfk
-       soil_erod_tmp(i) = 1 !turning off the source function -jfk, 8/27/18
+       soil_erod_tmp(i) = soil_erodibility( i,lchnk ) !-jfk  !JM reversed Feb 22 2022
+       !soil_erod_tmp(i) = 1 !turning off the source function -jfk, 8/27/18
        ! jfl
        ! change test to from 0.1 to 0.001 after
        ! discussion with N. Mahowald April 8 2009
@@ -1366,7 +1368,7 @@ subroutine dust_emis_intr(state, cam_in)
                   dmt_vwr(m)   ![frc] Slip correction factor SeP97 p. 464
              vlc_grv(i,k,m) = (1.0_r8/18.0_r8) * dmt_vwr(m) * dmt_vwr(m) * dns_aer * &
                   gravit * slp_crc(i,k,m) / vsc_dyn_atm(i,k) ![m s-1] Stokes' settling velocity SeP97 p. 466
-             vlc_grv(i,k,m) = vlc_grv(i,k,m) * stk_crc(m) * 0.87_r8 !JM 13% reduction         ![m s-1] Correction to Stokes settling velocity
+             vlc_grv(i,k,m) = vlc_grv(i,k,m) * stk_crc(m) * 0.87_r8  !JM 13% off   ![m s-1] Correction to Stokes settling velocity
              vlc_dry(i,k,m)=vlc_grv(i,k,m)
           end do
        enddo

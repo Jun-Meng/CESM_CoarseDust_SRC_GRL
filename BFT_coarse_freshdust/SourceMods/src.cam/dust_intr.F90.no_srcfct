@@ -23,8 +23,8 @@ save
   integer, parameter:: dust_number = 2
   integer, parameter:: ndst =2
 #else
-  integer, parameter:: dust_number = 8  !JM 4->8
-  integer, parameter:: ndst =8          !JM 4->8
+  integer, parameter:: dust_number = 4
+  integer, parameter:: ndst =4
 #endif
   integer, parameter:: dst_src_nbr =3
   integer, parameter:: sz_nbr =200
@@ -43,7 +43,7 @@ save
 #else
   integer, parameter :: ncnst=ndst                   ! number of constituents
   character(len=8), dimension(ncnst), parameter :: & ! constituent names
-       cnst_names = (/'DST01', 'DST02', 'DST03', 'DST04', 'DST05', 'DST06','DST07','DST08'/) ! JM Dec 14 2020 add more bins
+       cnst_names = (/'DST01', 'DST02', 'DST03', 'DST04'/)
 #endif
 
   !
@@ -131,11 +131,6 @@ contains
     call cnst_add(cnst_names(3), mwght, one, zero, m )
     call cnst_add(cnst_names(4), mwght, one, zero, m )
 
-    ! JM add more bins 
-    call cnst_add(cnst_names(5), mwght, one, zero, m )
-    call cnst_add(cnst_names(6), mwght, one, zero, m )
-    call cnst_add(cnst_names(7), mwght, one, zero, m )
-    call cnst_add(cnst_names(8), mwght, one, zero, m )
     return
 
   end subroutine dust_register_cnst
@@ -197,15 +192,6 @@ contains
     else if ( name == cnst_names(3) ) then
        q = 0._r8
     else if ( name == cnst_names(4) ) then
-       q = 0._r8
-    ! JM add more bins
-    else if ( name == cnst_names(5) ) then
-       q = 0._r8
-    else if ( name == cnst_names(6) ) then
-       q = 0._r8
-    else if ( name == cnst_names(7) ) then
-       q = 0._r8
-    else if ( name == cnst_names(8) ) then
        q = 0._r8
     end if
 
@@ -364,8 +350,8 @@ subroutine dust_initialize(dust_emis_fact_in, soil_erod_in)
    end do
 
 #else
-  ! JM  m from 1 to 8? 
-   do m = 1, 8
+
+   do m = 1, 4
       dummy = trim(cnst_name(ix-1+m))
       call addfld (dummy,'kg/kg ',pver, 'A',trim(cnst_name(ix-1+m))//' dust mixing ratio',phys_decomp)
       call add_default(dummy, 1, ' ' )
@@ -530,16 +516,12 @@ end subroutine dust_initialize
     do m = 1, ndst
 
        sflx(:) = 0._r8
-       !if (dust_has_wet_dep(m) ) then
+       if (dust_has_wet_dep(m) ) then
           mm = ix_dust + m - 1
-          !JM
-          !write(iulog,*) 'Debugging: the dust index mm is:', mm
           scavt=0._r8
           !       write(iulog,*) 'wet dep removed for debugging'
           ptend%lq(mm) = .TRUE.
           ptend%name  = trim(ptend%name)//',dust'
-          !JM testing why state%q is the same 
-          !write(iulog,*) 'ptend name is', ptend%name
           sol_fact = 0.15_r8
           call wetdepa_v1( state%t, state%pmid, state%q, state%pdel,  &
                cldn, cldc, cmfdqr, conicw, prain, cme,                     &
@@ -548,8 +530,6 @@ end subroutine dust_initialize
           ptend%q(:ncol,:,mm)=scavt(:ncol,:)
 
           call outfld( trim(cnst_name(mm))//'PP', ptend%q(:,:,mm), pcols, lchnk)
-          ! JM testing is state%q(:,:,mm) are the same for mm=20,21,22,23
-          !call outfld( trim(cnst_name(mm))//'PP', state%q(:,:,mm), pcols, lchnk)
           !      write(iulog,*) ' range of ptend ix ', minval(ptend%q(:ncol,:,mm)),maxval(ptend%q(:ncol,:,mm))
           do k = 1, pver
              do i = 1, ncol
@@ -579,27 +559,10 @@ end subroutine dust_initialize
                 do i = 1, ncol
                    cam_out%dstwet4(i) = max(-sflx(i), 0._r8)
                 end do
-            ! JM add more bins
-             case(5)
-                do i = 1, ncol
-                   cam_out%dstwet5(i) = max(-sflx(i), 0._r8)
-                end do
-             case(6)
-                do i = 1, ncol
-                   cam_out%dstwet6(i) = max(-sflx(i), 0._r8)
-                end do
-             case(7)
-                do i = 1, ncol
-                   cam_out%dstwet7(i) = max(-sflx(i), 0._r8)
-                end do
-             case(8)
-                do i = 1, ncol
-                   cam_out%dstwet8(i) = max(-sflx(i), 0._r8)
-                end do
              end select
           endif
 
-       !endif
+       endif
     end do
     call outfld( 'DSTSFWET', sflx_tot, pcols, lchnk)
 
@@ -774,23 +737,6 @@ end subroutine dust_initialize
              do i = 1, ncol
                 cam_out%dstdry4(i) = max(sflx(i), 0._r8)
              end do
-          ! JM 
-          case(5)
-             do i = 1, ncol
-                cam_out%dstdry5(i) = max(sflx(i), 0._r8)
-             end do
-         case(6)
-             do i = 1, ncol
-                cam_out%dstdry6(i) = max(sflx(i), 0._r8)
-             end do
-          case(7)
-             do i = 1, ncol
-                cam_out%dstdry7(i) = max(sflx(i), 0._r8)
-             end do
-          case(8)
-             do i = 1, ncol
-                cam_out%dstdry8(i) = max(sflx(i), 0._r8)
-             end do
           end select
        endif
 
@@ -810,7 +756,7 @@ end subroutine dust_initialize
 
     ! set flags for tendencies (water and 4 ghg's)
     ptend%name  = ptend%name//'+dust_drydep'
-    ptend%lq(ioff+1:ioff+8) = .TRUE.   !JM here should change it to 1:8, ioff = 15
+    ptend%lq(ioff+1:ioff+4) = .TRUE.
 
     return
   end subroutine dust_drydep_intr
@@ -909,24 +855,10 @@ subroutine dust_emis_intr(state, cam_in)
        ! discussion with N. Mahowald April 8 2009
        if(soil_erod_tmp(i) .lt. 0.001_r8) soil_erod_tmp(i)=0._r8
     end do
-    !cflx(:ncol,dust_idx1())=cflx(:ncol,dust_idx1())*0.011_r8/0.032456_r8 !jfk, Jasper Kok, 8/27/18, based on Kok(2011)
-    !cflx(:ncol,dust_idx1()+1)=cflx(:ncol,dust_idx1()+1)*0.087_r8/0.174216_r8
-    !cflx(:ncol,dust_idx1()+2)=cflx(:ncol,dust_idx1()+2)*0.277_r8/0.4085517_r8
-    !cflx(:ncol,dust_idx1()+3)=cflx(:ncol,dust_idx1()+3)*0.625_r8/0.384811_r8
-    ! JM
-    !cflx(:ncol,dust_idx1()+4)=cflx(:ncol,dust_idx1()+3)*0.625_r8/0.384811_r8  ! here need apply jasper's BFT new fraction factors
-    !cflx(:ncol,dust_idx1()+5)=cflx(:ncol,dust_idx1()+3)*0.625_r8/0.384811_r8  ! here test if dst5-8 will be the same as dst4, since they are from the same
-    !cflx(:ncol,dust_idx1()+6)=cflx(:ncol,dust_idx1()+3)*0.625_r8/0.384811_r8
-    !cflx(:ncol,dust_idx1()+7)=cflx(:ncol,dust_idx1()+3)*0.625_r8/0.384811_r8
-    !JM testing new proposed solution: only partition dust flux in CLM
-    cflx(:ncol,dust_idx1())=cflx(:ncol,dust_idx1())
-    cflx(:ncol,dust_idx1()+1)=cflx(:ncol,dust_idx1()+1)
-    cflx(:ncol,dust_idx1()+2)=cflx(:ncol,dust_idx1()+2)
-    cflx(:ncol,dust_idx1()+3)=cflx(:ncol,dust_idx1()+3)
-    cflx(:ncol,dust_idx1()+4)=cflx(:ncol,dust_idx1()+4)
-    cflx(:ncol,dust_idx1()+5)=cflx(:ncol,dust_idx1()+5)
-    cflx(:ncol,dust_idx1()+6)=cflx(:ncol,dust_idx1()+6)
-    cflx(:ncol,dust_idx1()+7)=cflx(:ncol,dust_idx1()+7)
+    cflx(:ncol,dust_idx1())=cflx(:ncol,dust_idx1())*0.011_r8/0.032456_r8 !jfk, Jasper Kok, 8/27/18, based on Kok(2011)
+    cflx(:ncol,dust_idx1()+1)=cflx(:ncol,dust_idx1()+1)*0.087_r8/0.174216_r8
+    cflx(:ncol,dust_idx1()+2)=cflx(:ncol,dust_idx1()+2)*0.277_r8/0.4085517_r8
+    cflx(:ncol,dust_idx1()+3)=cflx(:ncol,dust_idx1()+3)*0.625_r8/0.384811_r8
 #endif
 
     ! tuning factor (fact) for dust emissions
@@ -944,7 +876,7 @@ subroutine dust_emis_intr(state, cam_in)
        cflx(:ncol,m)=cflx(:ncol,m)*soil_erod_tmp(:ncol)/fact*1.15_r8
        sflx(:ncol)=sflx(:ncol)+cflx(:ncol,m)
 #else
-    do m=dust_idx1(),dust_idx1()+7     ! JM from 3 to 7 
+    do m=dust_idx1(),dust_idx1()+3
        ! multiply by soil erodibility factor
        cflx(:ncol,m)=cflx(:ncol,m)*soil_erod_tmp(:ncol)/fact*1.15_r8
        sflx(:ncol)=sflx(:ncol)+cflx(:ncol,m)
@@ -1056,11 +988,8 @@ subroutine dust_emis_intr(state, cam_in)
          (/ 0.1e-6_r8, 1.0e-6_r8, 10.0e-6_r8/)
 #endif
 #else
-   ! real(r8) :: dmt_grd(5) =                  &     ![m] Particle diameter grid
-   !     (/ 0.1e-6_r8, 1.0e-6_r8, 2.5e-6_r8, 5.0e-6_r8, 10.0e-6_r8 /)
-   ! JM add more dust bins
-    real(r8) :: dmt_grd(9) =                  &     ![m] Particle diameter grid
-         (/ 0.1e-6_r8, 1.0e-6_r8, 2.5e-6_r8, 5.0e-6_r8, 10.0e-6_r8, 14.0e-6_r8, 20.0e-6_r8, 28.0e-6_r8, 40.0e-6_r8 /)
+    real(r8) :: dmt_grd(5) =                  &     ![m] Particle diameter grid
+         (/ 0.1e-6_r8, 1.0e-6_r8, 2.5e-6_r8, 5.0e-6_r8, 10.0e-6_r8 /)
 #endif
     real(r8), parameter :: dmt_slt_opt = 75.0e-6_r8    ![m] Optim diam for saltation
     real(r8), parameter :: dns_slt = 2650.0_r8         ![kg m-3] Density of optimal saltation particles
@@ -1120,7 +1049,7 @@ subroutine dust_emis_intr(state, cam_in)
 #if (defined MODAL_AERO)
     if (dust_number == 2) then
 #else
-    if (dust_number == 8) then  ! JM change from 4 to 8
+    if (dust_number == 4) then
 #endif
        do n = 1, dust_number
           dmt_min(n) = dmt_grd(n)                       ![m] Max diameter in bin
@@ -1128,13 +1057,11 @@ subroutine dust_emis_intr(state, cam_in)
           dmt_ctr(n) = 0.5_r8 * (dmt_min(n)+dmt_max(n)) ![m] Diameter at bin ctr
           dmt_dlt(n) = dmt_max(n)-dmt_min(n)            ![m] Width of size bin
        end do
-    else 
+    else
 #if (defined MODAL_AERO)
        call endrun('Dustini error: dust_number must equal to 2 with current code')
 #else
-       call endrun('Dustini error: dust_number must equal to 4 with current code') 
-       ! JM add more bins: (maybe need more codes here)
-       
+       call endrun('Dustini error: dust_number must equal to 4 with current code')  
 #endif
        !see more comments above)
     endif
@@ -1366,7 +1293,7 @@ subroutine dust_emis_intr(state, cam_in)
                   dmt_vwr(m)   ![frc] Slip correction factor SeP97 p. 464
              vlc_grv(i,k,m) = (1.0_r8/18.0_r8) * dmt_vwr(m) * dmt_vwr(m) * dns_aer * &
                   gravit * slp_crc(i,k,m) / vsc_dyn_atm(i,k) ![m s-1] Stokes' settling velocity SeP97 p. 466
-             vlc_grv(i,k,m) = vlc_grv(i,k,m) * stk_crc(m) * 0.87_r8 !JM 13% reduction         ![m s-1] Correction to Stokes settling velocity
+             vlc_grv(i,k,m) = vlc_grv(i,k,m) * stk_crc(m)         ![m s-1] Correction to Stokes settling velocity
              vlc_dry(i,k,m)=vlc_grv(i,k,m)
           end do
        enddo

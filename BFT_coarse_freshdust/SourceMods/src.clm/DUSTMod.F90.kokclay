@@ -135,17 +135,9 @@ contains
     real(r8) :: gwc_sfc
     real(r8) :: ttlai(lbp:ubp)
     real(r8) :: tlai_lu(lbl:ubl)
-    !real(r8) :: fact_BFT(ndst)      !  ! [fraction unitless] !JM Factors from Brittle Fragmentation Theory -JM
 !    
 ! constants
 !
-    real(r8) :: fact_BFT(ndst) =                  &     ! [fraction unitless] !JM Factors from Brittle Fragmentation Theory 
-         !  (/ 0.0064_r8, 0.0555_r8, 0.1117_r8, 0.2476_r8, 0.1736_r8, 0.2090_r8, 0.1503_r8, 0.0458_r8 /)  !P40 from Yue's MLE
-         !   (/ 0.004789_r8, 0.039217_r8, 0.123221_r8, 0.288279_r8, 0.183808_r8, 0.177866_r8, 0.117797_r8, 0.065022_r8 /)  !complex BFT factors 
-         !   (/ 0.004442_r8, 0.0308085_r8,0.0829659_r8,0.184324_r8,0.1352501_r8,0.17431356_r8,0.18561530_r8,0.2022801_r8 /) !complex BFT with Danny parameters       
-         (/ 0.0077_r8, 0.0635_r8, 0.2015_r8, 0.4556_r8, 0.2047_r8, 0.0651_r8, 0.0019_r8, 3.2799e-7_r8 /) !Original BFT in kok 11 but with 8 bins
-      !  (/ 0.008918_r8, 0.072296_r8, 0.142149_r8, 0.298359_r8, 0.218148_r8, 0.260130_r8, 0.186928_r8, 0.057237_r8/)!JUN calculated from yue's MLE fit line 
-    !real(r8), parameter :: fact_BFT(n)       !JM Factors from Brittle Fragmentation Theory 
 !    real(r8), parameter :: cst_slt = 2.61_r8           ! [frc] Saltation constant !-variable no longer needed, -jfk
     real(r8), parameter :: flx_mss_fdg_fct = 5.0e-4_r8 ! [frc] Empir. mass flx tuning eflx_lh_vegt
     real(r8), parameter :: vai_mbl_thr = 0.3_r8        ! [m2 m-2] VAI threshold quenching dust mobilization
@@ -376,35 +368,15 @@ contains
     ! the following comes from subr. flx_mss_vrt_dst_prt in C. Zender's code
     ! purpose: partition total vertical mass flux of dust into transport bins
           
-    !do n = 1, ndst
-    !   do m = 1, dst_src_nbr
-    !      do fp = 1,num_nolakep
-    !         p = filter_nolakep(fp)
-    !        if (lnd_frc_mbl(p) > 0.0_r8) then
-    !           flx_mss_vrt_dst(p,n) = flx_mss_vrt_dst(p,n) +  ovr_src_snk_mss(m,n) * flx_mss_vrt_dst_ttl(p)
-    !         end if
-    !      end do
-    !   end do
-    !end do
-
-    !do n = 1, ndst
-    !   do fp = 1,num_nolakep
-    !      p = filter_nolakep(fp)
-    !      if (lnd_frc_mbl(p) > 0.0_r8) then
-    !         flx_mss_vrt_dst_tot(p) = flx_mss_vrt_dst_tot(p) + flx_mss_vrt_dst(p,n)
-    !      end if
-    !   end do
-    !end do
-    ! JM's proposed solution Jan. 6 2021
     do n = 1, ndst
-       !do m = 1, dst_src_nbr
+       do m = 1, dst_src_nbr
           do fp = 1,num_nolakep
              p = filter_nolakep(fp)
              if (lnd_frc_mbl(p) > 0.0_r8) then
-                flx_mss_vrt_dst(p,n) = flx_mss_vrt_dst(p,n) +  fact_BFT(n) * flx_mss_vrt_dst_ttl(p)
+                flx_mss_vrt_dst(p,n) = flx_mss_vrt_dst(p,n) +  ovr_src_snk_mss(m,n) * flx_mss_vrt_dst_ttl(p)
              end if
           end do
-       !end do
+       end do
     end do
 
     do n = 1, ndst
@@ -415,9 +387,7 @@ contains
           end if
        end do
     end do
-    !JM debuging totol emission
-    !write(iulog,*) 'tot dust from CLM', SUM(flx_mss_vrt_dst_tot)
- 
+
   end subroutine DustEmission
 
 !------------------------------------------------------------------------
@@ -472,11 +442,6 @@ contains
     real(r8), pointer :: vlc_trb_2(:)   ! Turbulent deposition velocity 2
     real(r8), pointer :: vlc_trb_3(:)   ! Turbulent deposition velocity 3
     real(r8), pointer :: vlc_trb_4(:)   ! Turbulent deposition velocity 4
-    ! JM 
-    real(r8), pointer :: vlc_trb_5(:)   ! Turbulent deposition velocity 5
-    real(r8), pointer :: vlc_trb_6(:)   ! Turbulent deposition velocity 6
-    real(r8), pointer :: vlc_trb_7(:)   ! Turbulent deposition velocity 7
-    real(r8), pointer :: vlc_trb_8(:)   ! Turbulent deposition velocity 8
 !
 ! !REVISION HISTORY
 ! Created by Sam Levis
@@ -526,11 +491,6 @@ contains
     vlc_trb_2 => pdf%vlc_trb_2
     vlc_trb_3 => pdf%vlc_trb_3
     vlc_trb_4 => pdf%vlc_trb_4
-    ! JM 
-    vlc_trb_5 => pdf%vlc_trb_5
-    vlc_trb_6 => pdf%vlc_trb_6
-    vlc_trb_7 => pdf%vlc_trb_7
-    vlc_trb_8 => pdf%vlc_trb_8
 
     do p = lbp,ubp
        l = plandunit(p)
@@ -557,7 +517,7 @@ contains
                   dmt_vwr(m)   ![frc] Slip correction factor SeP97 p. 464
              vlc_grv(p,m) = (1.0_r8/18.0_r8) * dmt_vwr(m) * dmt_vwr(m) * dns_aer * &
                   grav * slp_crc(p,m) / vsc_dyn_atm(p)   ![m s-1] Stokes' settling velocity SeP97 p. 466
-             vlc_grv(p,m) = vlc_grv(p,m) * stk_crc(m) * 0.87_r8 !JM 13% reduction    ![m s-1] Correction to Stokes settling velocity
+             vlc_grv(p,m) = vlc_grv(p,m) * stk_crc(m)    ![m s-1] Correction to Stokes settling velocity
           end do
        end if
     end do
@@ -606,11 +566,6 @@ contains
           vlc_trb_2(p) = vlc_trb(p,2)
           vlc_trb_3(p) = vlc_trb(p,3)
           vlc_trb_4(p) = vlc_trb(p,4)
-          !JM more bins 
-          vlc_trb_5(p) = vlc_trb(p,5)
-          vlc_trb_6(p) = vlc_trb(p,6)
-          vlc_trb_7(p) = vlc_trb(p,7)
-          vlc_trb_8(p) = vlc_trb(p,8)
        end if
     end do 
 
@@ -704,11 +659,8 @@ contains
          (/ 2.10_r8     ,  1.90_r8   , 1.60_r8     /)        ! BSM96 p. 73 Table 2
     real(r8) :: mss_frc_src(dst_src_nbr) =    &     ! [frc] Mass fraction 
          (/ 0.036_r8, 0.957_r8, 0.007_r8 /)                  ! BSM96 p. 73 Table 2
-   ! real(r8) :: dmt_grd(5) =                  &     ! [m] Particle diameter grid
-   !      (/ 0.1e-6_r8, 1.0e-6_r8, 2.5e-6_r8, 5.0e-6_r8, 10.0e-6_r8 /)
-   !JM 
-    real(r8) :: dmt_grd(9) =                  &     ! [m] Particle diameter grid
-         (/ 0.1e-6_r8, 1.0e-6_r8, 2.5e-6_r8, 5.0e-6_r8, 10.0e-6_r8, 14.0e-6_r8, 20.0e-6_r8, 28.0e-6_r8, 40.0e-6_r8 /)
+    real(r8) :: dmt_grd(5) =                  &     ! [m] Particle diameter grid
+         (/ 0.1e-6_r8, 1.0e-6_r8, 2.5e-6_r8, 5.0e-6_r8, 10.0e-6_r8 /)
     real(r8), parameter :: dmt_slt_opt = 75.0e-6_r8    ! [m] Optim diam for saltation
     real(r8), parameter :: dns_slt = 2650.0_r8         ! [kg m-3] Density of optimal saltation particles
 
@@ -788,7 +740,7 @@ contains
     
     ! Override automatic grid with preset grid if available
 
-    if (ndst == 8) then     ! JM change from 4 to 8
+    if (ndst == 4) then
        do n = 1, ndst
           dmt_min(n) = dmt_grd(n)                       ![m] Max diameter in bin
           dmt_max(n) = dmt_grd(n+1)                     ![m] Min diameter in bin

@@ -1,0 +1,33 @@
+! Users should add all user specific namelist changes below in the form of 
+! namelist_var = new_namelist_value 
+fincl1 = 'ODV_DST01','ODV_DST02','ODV_DST03','ODV_DST04','AEROD_v','AREA','DSTSFWET','DSTSFDRY','DSTSFMBL', 'PDELDRY', 'airFV','RAM1','Z3','VDDST01','VDDST02','VDDST03','VDDST04','VDDST05','VDDST06','VDDST07','VDDST08','KVH'
+fincl2         = 'U', 'V','DSTSFMBL','DSTSFWET','DSTSFDRY','DST01', 'DST02', 'DST03', 'DST04','DST05','DST06','DST07','DST08', 'ODV_DST01', 'ODV_DST02', 'ODV_DST03', 'ODV_DST04', 'AEROD_v','Z3','PDELDRY','AREA'
+fincl3         = 'AEROD_v','DST01', 'DST02', 'DST03', 'DST04','DST05','DST06','DST07','DST08', 'VDDST01','VDDST02','VDDST03','VDDST04','VDDST05','VDDST06','VDDST07','VDDST08','KVH','PBLH'
+nhtfrq = 0,-24,-1
+mfilt = 1,1,24
+avgflag_pertape = 'A','A','A'
+soil_erod='/glade/u/home/junmeng/datasets/source_function/dst_1.9x2.5_OneGrid_B600_real.nc'
+ rad_climate            = 'A:Q:H2O', 'N:O2:O2', 'N:CO2:CO2', 'N:ozone:O3', 'N:N2O:N2O', 'N:CH4:CH4', 'N:CFC11:CFC11',
+  'N:CFC12:CFC12',
+  'A:SO4:/glade/p/cesm/cseg//inputdata/atm/cam/physprops/sulfate_camrt_c080918.nc',
+  'A:DST01:/glade/u/home/jfkok/input_data/dust1_camrt_c120518.nc',
+  'A:DST02:/glade/u/home/jfkok/input_data/dust2_camrt_c120518.nc',
+  'A:DST03:/glade/u/home/jfkok/input_data/dust3_camrt_c120518.nc',
+  'A:DST04:/glade/u/home/jfkok/input_data/dust4_camrt_c120518.nc',
+  'A:CB1:/glade/p/cesm/cseg//inputdata/atm/cam/physprops/bcpho_camrt_c080918.nc',
+  'A:CB2:/glade/p/cesm/cseg//inputdata/atm/cam/physprops/bcphi_camrt_c080918.nc',
+  'A:OC1:/glade/p/cesm/cseg//inputdata/atm/cam/physprops/ocpho_camrt_c080918.nc',
+  'A:OC2:/glade/p/cesm/cseg//inputdata/atm/cam/physprops/ocphi_camrt_c080918.nc',
+  'N:SSLTA:/glade/p/cesm/cseg//inputdata/atm/cam/physprops/ssam_camrt_c080918.nc',
+  'N:SSLTC:/glade/p/cesm/cseg//inputdata/atm/cam/physprops/sscm_camrt_c080918.nc'
+ met_data_file          = '2011/MERRA2_1.9x2.5_20110101.nc'
+ met_data_path          = '/gpfs/fs1/p/cesm/chwg_dev/met_data/MERRA2/1.9x2.5'
+ met_filenames_list     = '/gpfs/fs1/p/cesm/chwg_dev/met_data/MERRA2/1.9x2.5/filenames_list_c180824'
+dust_emis_fact         =7.80D0
+bnd_topo               = '/gpfs/fs1/work/jfkok/inputdata/USGS-gtopo30_1.9x2.5_phys_erai_c100929.nc'
+solar_data_file                = '/gpfs/fs1/work/jfkok/inputdata/spectral_irradiance_Lean_1610-2140_ann_c100408.nc'
+prescribed_ozone_datapath = '/glade/p/cesm/cseg//inputdata/atm/cam/ozone'
+prescribed_ozone_file = 'ozone_1.9x2.5_L26_1850-2015_rcp45_c101108.nc'
+prescribed_aero_file = 'aero_1.9x2.5_L26_1850-2020_c130627.nc'
+prescribed_aero_datapath = '/glade/p/cesm/cseg//inputdata/atm/cam/chem/trop_mozart_aero/aero'
+ 
